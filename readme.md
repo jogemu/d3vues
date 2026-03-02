@@ -120,6 +120,20 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
 <script src="https://unpkg.com/@jogemu/petite-vue" defer init></script>
 ```
 
+```html
+<!-- Circle packing -->
+<svg v-scope="{
+  data: { children: Array.from({ length: 4 }, ()=>({ children: Array.from({ length: 4 }, Math.random) }) ) },
+  pack: d3.pack().size([$el.clientHeight, $el.clientWidth]).padding(2) }"
+  :viewBox="[0, $el.clientHeight/2, $el.clientWidth, $el.clientHeight].join(' ')">
+  <circle v-for="d, i in pack(d3.hierarchy(data).sum(i=>i)).descendants()"
+    :cx="d.x" :cy="d.y" :r="d.r"
+    :fill="d3.schemeSet2[i%8]"></circle>
+</svg>
+<script src="https://unpkg.com/d3"></script>
+<script src="https://unpkg.com/@jogemu/petite-vue" defer init></script>
+```
+
 ## Networks
 
 ```html
