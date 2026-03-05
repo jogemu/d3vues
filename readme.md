@@ -177,6 +177,24 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
 <script src="https://unpkg.com/@jogemu/petite-vue" defer init></script>
 ```
 
+```html
+<!-- Arc diagram -->
+<svg v-scope="{
+  nodes: Array.from({ length: 66 }, (v,i)=>({ index: i })),
+  links: Array.from({ length: 65 }, (v,i)=>({ source: i+1, target: Math.round(i*Math.random()) })), y: i=>i }"
+  :viewBox="[-40, -10, $el.clientWidth, $el.clientHeight].join(' ')">
+  <g v-effect="d3.select($el).call(d3.axisLeft(y=d3.scalePoint().domain(nodes.map(d=>d.index)).range([0, $el.parentElement.viewBox.baseVal.height-20])))"></g>
+  <path v-for="link in links"
+    :d="`M 0 ${y(link.source)} A 1 1 0 0 ${+(link.target>link.source)} 0 ${y(link.target)}`"
+    :stroke="d3.schemeSet2[link.target%8]" fill="none"></path>
+  <circle v-for="node in nodes"
+    :cy="y(node.index)" r="2"
+    :fill="d3.schemeSet2[node.index%8]"></circle>
+</svg>
+<script src="https://unpkg.com/d3"></script>
+<script src="https://unpkg.com/@jogemu/petite-vue" defer init></script>
+```
+
 ## Maps
 
 GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimuthal](https://d3js.org/d3-geo/azimuthal), [conic](https://d3js.org/d3-geo/conic) and [cylindrical](https://d3js.org/d3-geo/cylindrical) projections.
