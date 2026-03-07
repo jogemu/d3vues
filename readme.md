@@ -242,7 +242,8 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
 
 ```html
 <svg v-scope="{
-  points: Array.from({ length: 66 }, ()=>Array.from({ length: 2 }, Math.random)), x: i=>i, y: i=>i }"
+  points: Array.from({ length: 66 }, ()=>Array.from({ length: 2 }, Math.random)), x: i=>i, y: i=>i,
+  geoPath: d3.geoPath(d3.geoIdentity().clipExtent([[0, 0], [$el.clientWidth-60, $el.clientHeight-40]])) }"
   :viewBox="[-40, 30-$el.clientHeight, $el.clientWidth, $el.clientHeight].join(' ')">
   <g v-effect="d3.select($el).call(d3.axisBottom(x=d3.scaleLinear().domain(d3.extent(points, p=>p[0])).range([0, $el.parentElement.viewBox.baseVal.width-60]).nice()))"></g>
   <g v-effect="d3.select($el).call(d3.axisLeft(y=d3.scaleLinear().domain(d3.extent(points, p=>p[1])).range([0, -$el.parentElement.viewBox.baseVal.height+40]).nice()))"></g>
