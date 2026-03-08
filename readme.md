@@ -12,8 +12,8 @@ Reactive D3.js visualizations encoded in declarative HTML without any build step
     :d="d3.arc().innerRadius(1).outerRadius(radius)(d)"
     :fill="d3.schemeSet2[i%8]"></path>
 </svg>
-<script src="https://unpkg.com/d3"></script>
-<script src="https://unpkg.com/@jogemu/petite-vue" defer init></script>
+<script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
 Fetch external data asynchronously with ease. Visualizations update automatically on data changes.
@@ -68,8 +68,8 @@ Statistical analysis and axes can be placed inline and reused throughout the ent
     <circle v-for="v in bin.outliers" :cy="y(v)" r="1" stroke="none"></circle>
   </g></g>
 </svg>
-<script src="https://unpkg.com/d3"></script>
-<script src="https://unpkg.com/@jogemu/petite-vue" defer init></script>
+<script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
 Check the end of the document for [horizontal](#horizontal-plots) and [radar](#radarspider-plot) variations of the data above.
@@ -86,8 +86,8 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
     :x="d.x0" :y="d.y0" :width="d.x1-d.x0" :height="d.y1-d.y0"
     :fill="d3.schemeSet2[i%8]"></rect>
 </svg>
-<script src="https://unpkg.com/d3"></script>
-<script src="https://unpkg.com/@jogemu/petite-vue" defer init></script>
+<script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
 ```html
@@ -100,8 +100,8 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
     :x="d.y0" :y="d.x0" :width="d.y1-d.y0" :height="d.x1-d.x0"
     :fill="d3.schemeSet2[i%8]"></rect>
 </svg>
-<script src="https://unpkg.com/d3"></script>
-<script src="https://unpkg.com/@jogemu/petite-vue" defer init></script>
+<script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
 ```html
@@ -116,8 +116,8 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
     :d="arc(d)"
     :fill="d3.schemeSet2[i%8]"></path>
 </g></svg>
-<script src="https://unpkg.com/d3"></script>
-<script src="https://unpkg.com/@jogemu/petite-vue" defer init></script>
+<script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
 ```html
@@ -130,8 +130,8 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
     :cx="d.x" :cy="d.y" :r="d.r"
     :fill="d3.schemeSet2[i%8]"></circle>
 </svg>
-<script src="https://unpkg.com/d3"></script>
-<script src="https://unpkg.com/@jogemu/petite-vue" defer init></script>
+<script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
 ## Networks
@@ -152,8 +152,8 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
     :d="ribbon(chord)"
     :fill="d3.schemeSet2[chord.target.index%8]"></path>
 </g></svg>
-<script src="https://unpkg.com/d3"></script>
-<script src="https://unpkg.com/@jogemu/petite-vue" defer init></script>
+<script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
 ```html
@@ -173,8 +173,8 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
   <circle v-for="node in nodes"
     :cx="node.x" :cy="node.y" r="2"></circle>
 </g></svg>
-<script src="https://unpkg.com/d3"></script>
-<script src="https://unpkg.com/@jogemu/petite-vue" defer init></script>
+<script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
 ```html
@@ -191,8 +191,8 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
     :cy="y(node.index)" r="2"
     :fill="d3.schemeSet2[node.index%8]"></circle>
 </svg>
-<script src="https://unpkg.com/d3"></script>
-<script src="https://unpkg.com/@jogemu/petite-vue" defer init></script>
+<script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
 ```html
@@ -213,9 +213,9 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
     :height="node.y1-node.y0" :width="node.x1-node.x0"
     :fill="d3.schemeSet2[node.index%8]"></rect>
 </g></svg>
-<script src="https://unpkg.com/d3"></script>
-<script src="https://unpkg.com/d3-sankey"></script>
-<script src="https://unpkg.com/@jogemu/petite-vue" defer init></script>
+<script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-sankey"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
 ## Maps
@@ -234,8 +234,8 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
   <!-- Geodetic circle corrects map distortion to show true distance -->
   <path :d="geoPath(d3.geoCircle().center([-90, 60]).radius(25)())" :fill="d3.schemeSet2[3]"></path>
 </svg>
-<script src="https://unpkg.com/d3"></script>
-<script src="https://unpkg.com/@jogemu/petite-vue" defer init></script>
+<script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
 ## Analysis: Delaunay, Voronoi, Quadtree, Contours
@@ -273,8 +273,8 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
     <path v-for="contour in d3.contourDensity()(points.map(p=>[x(p[0]), -y(p[1])]))" :d="geoPath(contour)"></path>
   </g>
 </svg>
-<script src="https://unpkg.com/d3"></script>
-<script src="https://unpkg.com/@jogemu/petite-vue" defer init></script>
+<script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
 ## Horizontal plots
@@ -318,8 +318,8 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
     <circle v-for="v in bin.outliers" :cx="x(v)" r="1" stroke-width="1"></circle>
   </g></g>
 </svg>
-<script src="https://unpkg.com/d3"></script>
-<script src="https://unpkg.com/@jogemu/petite-vue" defer init></script>
+<script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
 ## Radar/Spider plot
@@ -377,6 +377,6 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
     <circle v-for="v in bin.outliers" v-bind="xyc(x(bin.v), y(v))" r="1" stroke="none"></circle>
   </g></g>
 </g></svg>
-<script src="https://unpkg.com/d3"></script>
-<script src="https://unpkg.com/@jogemu/petite-vue" defer init></script>
+<script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
