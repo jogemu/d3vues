@@ -198,16 +198,15 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
 ```html
 <!-- Sankey diagram -->
 <svg v-scope="{
-  nodes: Array.from({ length: 66 }, (v,i)=>({ index: i })),
-  links: Array.from({ length: 65 }, (v,i)=>({ source: i+1, target: Math.round(i*Math.random()), value: Math.random() })),
+  nodes: Array.from({ length: 32 }, (v,i)=>({ index: i })),
+  links: Array.from({ length: 31 }, (v,i)=>({ source: i+1, target: Math.round(i*Math.random()), value: Math.random() })),
   sankey: d3.sankey().extent([[0, 0], [$el.clientWidth, $el.clientHeight]]),
   linkH: d3.sankeyLinkHorizontal() }"
-  :viewBox="[0, 0, $el.clientWidth, $el.clientHeight].join(' ')"><g v-scope="{
-  result: sankey({nodes, links}) }">
-  <path v-for="link in links"
+  :viewBox="[0, 0, $el.clientWidth, $el.clientHeight].join(' ')"
+  v-effect="sankey({nodes, links})"><g v-if="links[0].width">
+  <g stroke="gray" stroke-opacity=".5" fill="none"><path v-for="link in links"
     :d="linkH(link)"
-    :stroke-width="link.width"
-    stroke="gray" stroke-opacity=".5" fill="none"></path>
+    :stroke-width="link.width"></path></g>
   <rect v-for="node in nodes"
     :x="node.x0" :y="node.y0"
     :height="node.y1-node.y0" :width="node.x1-node.x0"
