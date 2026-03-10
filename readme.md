@@ -181,9 +181,10 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
 <!-- Arc diagram -->
 <svg v-scope="{
   nodes: Array.from({ length: 66 }, (v,i)=>({ index: i })),
-  links: Array.from({ length: 65 }, (v,i)=>({ source: i+1, target: Math.round(i*Math.random()) })), y: i=>i }"
+  links: Array.from({ length: 65 }, (v,i)=>({ source: i+1, target: Math.round(i*Math.random()) })),
+  y: d3.scalePoint().range([0, $el.clientHeight-20]) }"
   :viewBox="[-40, -10, $el.clientWidth, $el.clientHeight].join(' ')">
-  <g v-effect="d3.select($el).call(d3.axisLeft(y=d3.scalePoint().domain(nodes.map(d=>d.index)).range([0, $el.parentElement.viewBox.baseVal.height-20])))"></g>
+  <g v-effect="d3.select($el).call(d3.axisLeft(y=y.domain(nodes.map(d=>d.index))))"></g>
   <path v-for="link in links"
     :d="`M 0 ${y(link.source)} A 1 1 0 0 ${+(link.target>link.source)} 0 ${y(link.target)}`"
     :stroke="d3.schemeSet2[link.target%8]" fill="none"></path>
