@@ -242,11 +242,13 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
 
 ```html
 <svg v-scope="{
-  points: Array.from({ length: 66 }, ()=>Array.from({ length: 2 }, Math.random)), x: i=>i, y: i=>i,
+  points: Array.from({ length: 66 }, ()=>Array.from({ length: 2 }, Math.random)),
+  x: d3.scaleLinear().range([0, $el.clientWidth-60]),
+  y: d3.scaleLinear().range([0, -$el.clientHeight+40]),
   geoPath: d3.geoPath(d3.geoIdentity().clipExtent([[0, 0], [$el.clientWidth-60, $el.clientHeight-40]])) }"
   :viewBox="[-40, 30-$el.clientHeight, $el.clientWidth, $el.clientHeight].join(' ')">
-  <g v-effect="d3.select($el).call(d3.axisBottom(x=d3.scaleLinear().domain(d3.extent(points, p=>p[0])).range([0, $el.parentElement.viewBox.baseVal.width-60]).nice()))"></g>
-  <g v-effect="d3.select($el).call(d3.axisLeft(y=d3.scaleLinear().domain(d3.extent(points, p=>p[1])).range([0, -$el.parentElement.viewBox.baseVal.height+40]).nice()))"></g>
+  <g v-effect="d3.select($el).call(d3.axisBottom(x=x.domain(d3.extent(points, p=>p[0])).nice()))"></g>
+  <g v-effect="d3.select($el).call(d3.axisLeft(y=y.domain(d3.extent(points, p=>p[1])).nice()))"></g>
 
   <!-- Scatter plot -->
   <g :fill="d3.schemeSet2[0]"><circle v-for="[cx, cy] in points" :cx="x(cx)" :cy="y(cy)" r="2"></circle></g>
@@ -255,13 +257,16 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
   <g v-for="delaunay in [d3.Delaunay.from(points)]" v-scope="{
     line: d3.line().x(p=>x(p[0])).y(p=>y(p[1])) }"
     fill="none" stroke="black">
-    <path v-for="triangle in Array.from(delaunay.trianglePolygons())" :d="line(triangle)" ></path>
+    <path v-for="triangle in Array.from(delaunay.trianglePolygons())"
+      :d="line(triangle)" ></path>
     <path :d="line(delaunay.hullPolygon())"></path>
-    <g v-if="x.domain"><path v-for="cell in Array.from(delaunay.voronoi(d3.zip(x.domain?.(), y.domain?.()).flat()).cellPolygons())" :d="line(cell)"></path></g>
+    <path v-for="cell in Array.from(delaunay.voronoi(d3.zip(x.domain(), y.domain()).flat()).cellPolygons())"
+      :d="line(cell)"></path>
   </g>
 
   <!-- Quadtree -->
-  <g v-effect="rects = []; d3.quadtree(points).visit((node, x1, y1, x2, y2) => !rects.push({x1, y1, x2, y2}))" v-scope="{ rects: [] }">
+  <g v-scope="{ rects: [] }" v-effect="rects = [];
+    d3.quadtree(points).visit((node, x1, y1, x2, y2) => !rects.push({x1, y1, x2, y2}))">
     <rect v-for="rect in rects"
       :x="x(rect.x1)" :y="y(rect.y2)"
       :width="x(rect.x2)-x(rect.x1)" :height="y(rect.y1)-y(rect.y2)"
@@ -270,7 +275,8 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
 
   <!-- Contours -->
   <g fill="none" stroke="black" transform="scale(1 -1)">
-    <path v-for="contour in d3.contourDensity()(points.map(p=>[x(p[0]), -y(p[1])]))" :d="geoPath(contour)"></path>
+    <path v-for="contour in d3.contourDensity()(points.map(p=>[x(p[0]), -y(p[1])]))"
+      :d="geoPath(contour)"></path>
   </g>
 </svg>
 <script src="https://cdn.jsdelivr.net/npm/d3"></script>
