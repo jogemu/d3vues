@@ -31,7 +31,9 @@ Statistical analysis and axes can be placed inline and reused throughout the ent
 
 ```html
 <svg v-scope="{ 
-  points: Array.from({ length: 66 }, ()=>Array.from({ length: 2 }, Math.random)), x: i=>i, y: i=>i,
+  points: Array.from({ length: 66 }, ()=>Array.from({ length: 2 }, Math.random)),
+  x: d3.scaleLinear().range([0, $el.clientWidth-60]),
+  y: d3.scaleLinear().range([0, -$el.clientHeight+40]),
   bins: (points, axis) => d3.bin().value(p=>p[axis])(points).map(bin => {
     bin.v = d3.mean([bin.x0, bin.x1]);
     bin.vs = bin.map(p=>p[(axis+1)%2]);
@@ -45,23 +47,27 @@ Statistical analysis and axes can be placed inline and reused throughout the ent
     bin.outliers = bin.vs.filter(v => v < bin.r0 || v > bin.r1);
     return bin; }) }"
   :viewBox="[-40, 30-$el.clientHeight, $el.clientWidth, $el.clientHeight].join(' ')">
-  <g v-effect="d3.select($el).call(d3.axisBottom(x=d3.scaleLinear().domain(d3.extent(points, p=>p[0])).range([0, $el.parentElement.viewBox.baseVal.width-60]).nice()));x.bandwidth??=()=>8"></g>
-  <g v-effect="d3.select($el).call(d3.axisLeft(y=d3.scaleLinear().domain(d3.extent(points, p=>p[1])).range([0, -$el.parentElement.viewBox.baseVal.height+40]).nice()))"></g>
+  <g v-effect="d3.select($el).call(d3.axisBottom(x=x.domain(d3.extent(points, p=>p[0])).nice()));x.bandwidth??=()=>8"></g>
+  <g v-effect="d3.select($el).call(d3.axisLeft(y=y.domain(d3.extent(points, p=>p[1])).nice()))"></g>
 
   <!-- Scatter plot -->
   <g :fill="d3.schemeSet2[0]"><circle v-for="[cx, cy] in points" :cx="x(cx)" :cy="y(cy)" r="2"></circle></g>
 
   <!-- Line plot -->
-  <path :d="d3.line().curve(d3.curveCatmullRom).x(d=>x(d.v)).y(d=>y(d.q1))(bins(points, 0))" :stroke="d3.schemeSet2[1]" fill="none"></path>
+  <path :d="d3.line().curve(d3.curveCatmullRom).x(d=>x(d.v)).y(d=>y(d.q1))(bins(points, 0))"
+    :stroke="d3.schemeSet2[1]" fill="none"></path>
 
   <!-- Area plot -->
-  <path :d="d3.area().curve(d3.curveCatmullRom).x(d=>x(d.v)).y0(d=>y(d.q1)).y1(d=>y(d.q3))(bins(points, 0))" :fill="d3.schemeSet2[2]"></path>
+  <path :d="d3.area().curve(d3.curveCatmullRom).x(d=>x(d.v)).y0(d=>y(d.q1)).y1(d=>y(d.q3))(bins(points, 0))"
+    :fill="d3.schemeSet2[2]"></path>
 
   <!-- Bar plot -->
-  <g :stroke="d3.schemeSet2[3]" :stroke-width="x.bandwidth?.()"><line v-for="d in bins(points, 0)" :y1="y(0)" :y2="y(d.q1)" :x1="x(d.v)" :x2="x(d.v)"></line></g>
+  <g :stroke="d3.schemeSet2[3]" :stroke-width="x.bandwidth?.()"><line v-for="d in bins(points, 0)"
+    :y1="y(0)" :y2="y(d.q1)" :x1="x(d.v)" :x2="x(d.v)"></line></g>
 
   <!-- Boxplot -->
-  <g stroke="black" :stroke-width="x.bandwidth?.()"><g v-for="bin in bins(points, 0)" :transform="`translate(${x(bin.v)})`">
+  <g stroke="black" :stroke-width="x.bandwidth?.()"><g v-for="bin in bins(points, 0)"
+    :transform="`translate(${x(bin.v)})`">
     <line :y1="y(bin.r0)" :y2="y(bin.r1)" stroke-width="1"></line>
     <line :y1="y(bin.q1)" :y2="y(bin.q3)" stroke="gray"></line>
     <line :y1="y(bin.q2)-1/2" :y2="y(bin.q2)+1/2"></line>
