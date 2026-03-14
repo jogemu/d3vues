@@ -295,26 +295,50 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
   points: Array.from({ length: 66 }, ()=>Array.from({ length: 2 }, Math.random)),
   x: d3.scaleLinear().range([0, $el.clientWidth-60]),
   y: d3.scaleLinear().range([0, -$el.clientHeight+40]),
-  color: d3.scaleQuantize().range(d3.schemePurples[5]),
+  color: d3.scaleQuantize().range(d3.schemePurples[7]),
   binX: d3.bin().value(p=>p[0]),
   binY: d3.bin().value(p=>p[1]),
   int: ([bx, by]) => ({ x0: bx.x0, x1: bx.x1, y0: by.x0, y1: by.x1, size: d3.intersection(bx, by).size }) }"
   :viewBox="[-40, 30-$el.clientHeight, $el.clientWidth, $el.clientHeight].join(' ')">
   <g v-effect="d3.select($el).call(d3.axisBottom(x=x.domain(d3.extent(points, p=>p[0])).nice()))"></g>
   <g v-effect="d3.select($el).call(d3.axisLeft(y=y.domain(d3.extent(points, p=>p[1])).nice()))"></g>
+  <g v-effect="color=color.domain([0, d3.max(int.cache, d=>d.size)])"></g>
 
-  <rect v-for="bin in d3.cross(binX(points), binY(points)).map(int)"
+  <rect v-for="bin in int.cache=d3.cross(binX(points), binY(points)).map(int)"
     :x="x(bin.x0)" :width="x(bin.x1)-x(bin.x0)"
     :y="y(bin.y1)" :height="y(bin.y0)-y(bin.y1)"
-    :fill="color(bin.size)"
-    v-effect="color=color.domain(d3.extent(color.domain().concat(bin.size)))"></rect>
+    :fill="color(bin.size)"></rect>
 
   <!-- Scatter plot -->
   <g :fill="d3.schemeSet2[0]"><circle v-for="[cx, cy] in points" :cx="x(cx)" :cy="y(cy)" r="2"></circle></g>
-
-  <circle r="10" @click="points.push(Array.from({ length: 2 }, Math.random))"></circle>
 </svg>
 <script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
+```
+
+```html
+<!-- Hexbin -->
+<svg v-scope="{
+  points: Array.from({ length: 66 }, ()=>Array.from({ length: 2 }, Math.random)),
+  x: d3.scaleLinear().range([0, $el.clientWidth-60]),
+  y: d3.scaleLinear().range([0, -$el.clientHeight+40]),
+  color: d3.scaleQuantize().range(d3.schemePurples[7]),
+  hexbin: d3.hexbin().radius(10) }"
+  :viewBox="[-40, 30-$el.clientHeight, $el.clientWidth, $el.clientHeight].join(' ')">
+  <g v-effect="d3.select($el).call(d3.axisBottom(x=x.domain(d3.extent(points, p=>p[0])).nice()))"></g>
+  <g v-effect="d3.select($el).call(d3.axisLeft(y=y.domain(d3.extent(points, p=>p[1])).nice()))"></g>
+  <g v-effect="color=color.domain([0, d3.max(hexbin.cache, d=>d.length)])"></g>
+  
+  <path v-for="d in hexbin.cache=hexbin.x(d=>x(d[0])).y(d=>y(d[1]))(points)"
+    :d="hexbin.hexagon()"
+    :transform="`translate(${d.x},${d.y})`"
+    :fill="color(d.length)"></path>
+  
+  <!-- Scatter plot -->
+  <g :fill="d3.schemeSet2[0]"><circle v-for="[cx, cy] in points" :cx="x(cx)" :cy="y(cy)" r="2"></circle></g>
+</svg>
+<script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-hexbin"></script>
 <script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
