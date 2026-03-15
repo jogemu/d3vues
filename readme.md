@@ -209,16 +209,15 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
   links: Array.from({ length: 31 }, (v,i)=>({ source: i+1, target: Math.round(i*Math.random()), value: Math.random() })),
   sankey: d3.sankey().extent([[0, 0], [$el.clientWidth, $el.clientHeight]]),
   linkH: d3.sankeyLinkHorizontal() }"
-  :viewBox="[0, 0, $el.clientWidth, $el.clientHeight].join(' ')"
-  v-effect="sankey({nodes, links})"><g v-if="links[0].width">
-  <g stroke="gray" stroke-opacity=".5" fill="none"><path v-for="link in links"
+  :viewBox="[0, 0, $el.clientWidth, $el.clientHeight].join(' ')">
+  <g stroke="gray" stroke-opacity=".5" fill="none"><path v-for="link in sankey({nodes, links}).links"
     :d="linkH(link)"
     :stroke-width="link.width"></path></g>
   <rect v-for="node in nodes"
     :x="node.x0" :y="node.y0"
     :height="node.y1-node.y0" :width="node.x1-node.x0"
     :fill="d3.schemeSet2[node.index%8]"></rect>
-</g></svg>
+</svg>
 <script src="https://cdn.jsdelivr.net/npm/d3"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey"></script>
 <script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
