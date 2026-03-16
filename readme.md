@@ -80,15 +80,15 @@ Statistical analysis and axes can be placed inline and reused throughout the ent
 
 Check the end of the document for [horizontal](#horizontal-plots) and [radar](#radarspider-plot) variations of the data above.
 
-## Hierarchies: Treemap, Icicle, Sunburst
+## Hierarchies: Treemap, Icicle, Sunburst, Circle packing
 
 ```html
 <!-- Treemap -->
 <svg v-scope="{
-  data: { children: Array.from({ length: 4 }, ()=>({ children: Array.from({ length: 4 }, Math.random) }) ) },
+  data: { children: [...Array(4)].map(()=>({ children: [...Array(4)].map(Math.random) }) ) },
   treemap: d3.treemap().size([$el.clientWidth, $el.clientHeight]).padding(2) }"
   :viewBox="[-0, 0, $el.clientWidth, $el.clientHeight].join(' ')">
-  <rect v-for="d, i in treemap(d3.hierarchy(data).sum(i=>i)).descendants()"
+  <rect v-for="d, i in treemap(d3.hierarchy(data).sum(d=>d)).descendants()"
     :x="d.x0" :y="d.y0" :width="d.x1-d.x0" :height="d.y1-d.y0"
     :fill="d3.schemeSet2[i%8]"></rect>
 </svg>
@@ -99,10 +99,10 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
 ```html
 <!-- Icicle -->
 <svg v-scope="{
-  data: { children: Array.from({ length: 4 }, ()=>({ children: Array.from({ length: 4 }, Math.random) }) ) },
+  data: { children: [...Array(4)].map(()=>({ children: [...Array(4)].map(Math.random) }) ) },
   icicle: d3.partition().size([$el.clientHeight, $el.clientWidth]).padding(2) }"
   :viewBox="[-0, 0, $el.clientWidth, $el.clientHeight].join(' ')">
-  <rect v-for="d, i in icicle(d3.hierarchy(data).sum(i=>i)).descendants()"
+  <rect v-for="d, i in icicle(d3.hierarchy(data).sum(d=>d)).descendants()"
     :x="d.y0" :y="d.x0" :width="d.y1-d.y0" :height="d.x1-d.x0"
     :fill="d3.schemeSet2[i%8]"></rect>
 </svg>
@@ -113,12 +113,12 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
 ```html
 <!-- Sunburst -->
 <svg v-scope="{
-  data: { children: Array.from({ length: 4 }, ()=>({ children: Array.from({ length: 4 }, Math.random) }) ) },
+  data: { children: [...Array(4)].map(()=>({ children: [...Array(4)].map(Math.random) }) ) },
   radius: Math.min($el.clientWidth, $el.clientHeight)/2,
   arc: d3.arc().startAngle(d => d.x0).endAngle(d => d.x1).innerRadius(d => d.y0).outerRadius(d => d.y1-2).padAngle(.015) }"
   :viewBox="[-radius, -radius, 2*radius, 2*radius].join(' ')"><g v-scope="{
   sunburst: d3.partition().size([2 * Math.PI, radius]) }">
-  <path v-for="d, i in sunburst(d3.hierarchy(data).sum(i=>i)).descendants()"
+  <path v-for="d, i in sunburst(d3.hierarchy(data).sum(d=>d)).descendants()"
     :d="arc(d)"
     :fill="d3.schemeSet2[i%8]"></path>
 </g></svg>
@@ -129,10 +129,10 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
 ```html
 <!-- Circle packing -->
 <svg v-scope="{
-  data: { children: Array.from({ length: 4 }, ()=>({ children: Array.from({ length: 4 }, Math.random) }) ) },
+  data: { children: [...Array(4)].map(()=>({ children: [...Array(4)].map(Math.random) }) ) },
   pack: d3.pack().size([$el.clientHeight, $el.clientWidth]).padding(2) }"
   :viewBox="[0, $el.clientHeight/2, $el.clientWidth, $el.clientHeight].join(' ')">
-  <circle v-for="d, i in pack(d3.hierarchy(data).sum(i=>i)).descendants()"
+  <circle v-for="d, i in pack(d3.hierarchy(data).sum(d=>d)).descendants()"
     :cx="d.x" :cy="d.y" :r="d.r"
     :fill="d3.schemeSet2[i%8]"></circle>
 </svg>
