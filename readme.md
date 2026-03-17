@@ -166,7 +166,7 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
 <!-- Force-directed graph -->
 <svg v-scope="{
   nodes: Array.from({ length: 66 }, (v,i)=>({ index: i })),
-  links: Array.from({ length: 65 }, (v,i)=>({ source: i+1, target: Math.round(i*Math.random()) })) }"
+  links: Array.from({ length: 65 }, (v,i)=>({ source: i+1, target: d3.randomInt(i)() })) }"
   :viewBox="[-$el.clientWidth/2, -$el.clientHeight/2, $el.clientWidth, $el.clientHeight].join(' ')"><g v-scope="{
   simulation: d3.forceSimulation(nodes)
     .force('link', d3.forceLink(links))
@@ -187,7 +187,7 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
 <!-- Arc diagram -->
 <svg v-scope="{
   nodes: Array.from({ length: 66 }, (v,i)=>({ index: i })),
-  links: Array.from({ length: 65 }, (v,i)=>({ source: i+1, target: Math.round(i*Math.random()) })),
+  links: Array.from({ length: 65 }, (v,i)=>({ source: i+1, target: d3.randomInt(i)() })),
   y: d3.scalePoint().range([0, $el.clientHeight-20]) }"
   :viewBox="[-40, -10, $el.clientWidth, $el.clientHeight].join(' ')">
   <g v-effect="d3.select($el).call(d3.axisLeft(y=y.domain(nodes.map(d=>d.index))))"></g>
@@ -206,7 +206,7 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
 <!-- Sankey diagram -->
 <svg v-scope="{
   nodes: Array.from({ length: 32 }, (v,i)=>({ index: i })),
-  links: Array.from({ length: 31 }, (v,i)=>({ source: i+1, target: Math.round(i*Math.random()), value: Math.random() })),
+  links: Array.from({ length: 31 }, (v,i)=>({ source: i+1, target: d3.randomInt(i)(), value: Math.random() })),
   sankey: d3.sankey().extent([[0, 0], [$el.clientWidth, $el.clientHeight]]),
   linkH: d3.sankeyLinkHorizontal() }"
   :viewBox="[0, 0, $el.clientWidth, $el.clientHeight].join(' ')">
