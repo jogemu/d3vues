@@ -229,15 +229,18 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
 
 ```html
 <svg v-scope="{
-  points: Array.from({ length: 66 }, ()=>Array.from({ length: 2 }, ()=>90-180*Math.random())),
+  points: Array.from({ length: 66 }, ()=>Array.from({ length: 2 }, d3.randomUniform(-90, 90))),
   geoPath: d3.geoPath(d3.geoMercator().translate([0, 0]).scale($el.clientHeight/8)) }"
   :viewBox="[-$el.clientWidth/2, -$el.clientHeight/2, $el.clientWidth, $el.clientHeight].join(' ')">
   <path :d="geoPath({type: 'Sphere'})" :fill="d3.schemeSet2[2]"></path>
   <path :d="geoPath(d3.geoGraticule10())" stroke="gray" fill="none"></path>
-  <g :fill="d3.schemeSet2[1]"><path v-for="point in points" :d="geoPath({ type: 'Point', coordinates: point })"></path></g>
-  <path :d="geoPath({ type: 'LineString', coordinates: points })" :stroke="d3.schemeSet2[0]" fill="none"></path>
+  <g :fill="d3.schemeSet2[1]"><path v-for="point in points"
+    :d="geoPath({ type: 'Point', coordinates: point })"></path></g>
+  <path :stroke="d3.schemeSet2[0]" fill="none"
+    :d="geoPath({ type: 'LineString', coordinates: points })"></path>
   <!-- Geodetic circle corrects map distortion to show true distance -->
-  <path :d="geoPath(d3.geoCircle().center([-90, 60]).radius(25)())" :fill="d3.schemeSet2[3]"></path>
+  <path :fill="d3.schemeSet2[3]"
+    :d="geoPath(d3.geoCircle().center([-90, 60]).radius(25)())"></path>
 </svg>
 <script src="https://cdn.jsdelivr.net/npm/d3"></script>
 <script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
