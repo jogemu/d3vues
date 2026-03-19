@@ -258,9 +258,6 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
   <g v-effect="d3.select($el).call(d3.axisBottom(x=x.domain(d3.extent(points, p=>p[0])).nice()))"></g>
   <g v-effect="d3.select($el).call(d3.axisLeft(y=y.domain(d3.extent(points, p=>p[1])).nice()))"></g>
 
-  <!-- Scatter plot -->
-  <g :fill="d3.schemeSet2[0]"><circle v-for="[cx, cy] in points" :cx="x(cx)" :cy="y(cy)" r="2"></circle></g>
-
   <!-- Delaunay & Voronoi -->
   <g v-for="delaunay in [d3.Delaunay.from(points)]" v-scope="{
     line: d3.line().x(p=>x(p[0])).y(p=>y(p[1])) }"
@@ -286,6 +283,9 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
     <path v-for="contour in d3.contourDensity()(points.map(p=>[x(p[0]), -y(p[1])]))"
       :d="geoPath(contour)"></path>
   </g>
+
+  <!-- Scatter plot -->
+  <circle v-for="[cx, cy] in points" :cx="x(cx)" :cy="y(cy)" r="2"></circle>
 </svg>
 <script src="https://cdn.jsdelivr.net/npm/d3"></script>
 <script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
@@ -312,7 +312,7 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
     :fill="color(bin.size)"></rect>
 
   <!-- Scatter plot -->
-  <g :fill="d3.schemeSet2[0]"><circle v-for="[cx, cy] in points" :cx="x(cx)" :cy="y(cy)" r="2"></circle></g>
+  <circle v-for="[cx, cy] in points" :cx="x(cx)" :cy="y(cy)" r="2"></circle>
 </svg>
 <script src="https://cdn.jsdelivr.net/npm/d3"></script>
 <script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
@@ -337,7 +337,7 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
     :fill="color(d.length)"></path>
   
   <!-- Scatter plot -->
-  <g :fill="d3.schemeSet2[0]"><circle v-for="[cx, cy] in points" :cx="x(cx)" :cy="y(cy)" r="2"></circle></g>
+  <circle v-for="[cx, cy] in points" :cx="x(cx)" :cy="y(cy)" r="2"></circle>
 </svg>
 <script src="https://cdn.jsdelivr.net/npm/d3"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-hexbin"></script>
