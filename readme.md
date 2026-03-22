@@ -183,6 +183,16 @@ Check the end of the document for [horizontal](#horizontal-plots) and [radar](#r
 <script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
+<details><summary>Force-directed graph interaction</summary>
+
+```html
+<!-- Move node and restart simulation -->
+<circle v-for="node in nodes"
+  @click="node.x=0;simulation.alpha(1).restart()"></circle>
+```
+
+</details>
+
 ```html
 <!-- Arc diagram -->
 <svg v-scope="{
