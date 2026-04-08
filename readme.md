@@ -354,6 +354,27 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
 <script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
+```html
+<!-- Word cloud -->
+<svg v-scope="{
+  words: ['en', 'cmn', 'hi', 'es', 'arb', 'fr', 'bn', 'pt'].map(l => ({
+    text: new Intl.DisplayNames(l, {type: 'language'}).of(l),
+    value: 10 + Math.random() * 90,
+  })),
+  wordcloud: d3.layout.cloud().size([$el.clientWidth, $el.clientHeight]) }"
+  :viewBox="[-$el.clientWidth/2, -$el.clientHeight/2, $el.clientWidth, $el.clientHeight].join(' ')"
+  v-effect="wordcloud.words(words).start()">
+
+  <g v-if="words[0].size" text-anchor="middle">
+    <text v-for="d in words"
+      :transform="`translate(${[d.x, d.y]}) rotate(${d.rotate})`"
+      :font-size="d.size">{{d.text}}</text>
+  </g>
+</svg>
+<script src="https://cdn.jsdelivr.net/npm/d3-cloud"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
+```
+
 ## Horizontal plots
 
 ```html
