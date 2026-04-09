@@ -1,4 +1,4 @@
-# d3vues
+# D3.vue's
 
 Reactive D3.js visualizations encoded in declarative HTML without any build steps. Decluttered examples without compromising flexibility. Copy into static websites or learn advanced D3 with ease.
 
@@ -16,7 +16,7 @@ Reactive D3.js visualizations encoded in declarative HTML without any build step
 <script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
-Fetch external data asynchronously with ease. Visualizations update automatically on data changes.
+External data is fetched asynchronously. Visualizations update automatically on data changes.
 
 ```html
 <svg v-scope="{
@@ -48,18 +48,19 @@ Statistical analysis and axes can be placed inline and reused throughout the ent
     return bin; }) }"
   :viewBox="[-40, 30-$el.clientHeight, $el.clientWidth, $el.clientHeight].join(' ')">
   <g v-effect="d3.select($el).call(d3.axisBottom(x=x.domain(d3.extent(points, p=>p[0])).nice()));x.bandwidth??=()=>8"></g>
-  <g v-effect="d3.select($el).call(d3.axisLeft(y=y.domain(d3.extent(points, p=>p[1])).nice()))"></g>
+  <g v-effect="d3.select($el).call(d3.axisLeft(y=y.domain(d3.extent(points, p=>p[1])).nice()));y.bandwidth??=()=>8"></g>
 
   <!-- Scatter plot -->
-  <g :fill="d3.schemeSet2[0]"><circle v-for="[cx, cy] in points" :cx="x(cx)" :cy="y(cy)" r="2"></circle></g>
+  <g :fill="d3.schemeSet2[0]"><circle v-for="[cx, cy] in points"
+    :cx="x(cx)" :cy="y(cy)" r="2"></circle></g>
 
   <!-- Line plot -->
-  <path :d="d3.line().curve(d3.curveCatmullRom).x(d=>x(d.v)).y(d=>y(d.q1))(bins(points, 0))"
-    :stroke="d3.schemeSet2[1]" fill="none"></path>
+  <path :stroke="d3.schemeSet2[1]" fill="none"
+    :d="d3.line().curve(d3.curveCatmullRom).x(d=>x(d.v)).y(d=>y(d.q1))(bins(points, 0))"></path>
 
   <!-- Area plot -->
-  <path :d="d3.area().curve(d3.curveCatmullRom).x(d=>x(d.v)).y0(d=>y(d.q1)).y1(d=>y(d.q3))(bins(points, 0))"
-    :fill="d3.schemeSet2[2]"></path>
+  <path :fill="d3.schemeSet2[2]"
+    :d="d3.area().curve(d3.curveCatmullRom).x(d=>x(d.v)).y0(d=>y(d.q1)).y1(d=>y(d.q3))(bins(points, 0))"></path>
 
   <!-- Bar plot -->
   <g :stroke="d3.schemeSet2[3]" :stroke-width="x.bandwidth?.()"><line v-for="d in bins(points, 0)"
@@ -78,9 +79,103 @@ Statistical analysis and axes can be placed inline and reused throughout the ent
 <script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
-Check the end of the document for [horizontal](#horizontal-plots) and [radar](#radarspider-plot) variations of the data above.
+<details><summary>Horizontal variant</summary>
 
-## Hierarchies: Treemap, Icicle, Sunburst, Circle packing
+```html
+  <!-- Line plot -->
+  <path :stroke="d3.schemeSet2[1]" fill="none"
+    :d="d3.line().curve(d3.curveCatmullRom).y(d=>y(d.v)).x(d=>x(d.q1))(bins(points, 1))"></path>
+
+  <!-- Area plot -->
+  <path :fill="d3.schemeSet2[2]"
+    :d="d3.area().curve(d3.curveCatmullRom).y(d=>y(d.v)).x0(d=>x(d.q1)).x1(d=>x(d.q3))(bins(points, 1))"></path>
+
+  <!-- Bar plot -->
+  <g :stroke="d3.schemeSet2[3]" :stroke-width="y.bandwidth?.()"><line v-for="d in bins(points, 1)"
+    :x1="x(0)" :x2="x(d.q1)" :y1="y(d.v)" :y2="y(d.v)"></line></g>
+
+  <!-- Boxplot -->
+  <g stroke="black" :stroke-width="y.bandwidth?.()"><g v-for="bin in bins(points, 1)"
+    :transform="`translate(0 ${y(bin.v)})`">
+    <line :x1="x(bin.r0)" :x2="x(bin.r1)" stroke-width="1"></line>
+    <line :x1="x(bin.q1)" :x2="x(bin.q3)" stroke="gray"></line>
+    <line :x1="x(bin.q2)-1/2" :x2="x(bin.q2)+1/2"></line>
+    <circle v-for="v in bin.outliers" :cx="x(v)" r="1" stroke="none"></circle>
+  </g></g>
+```
+
+</details>
+
+<details><summary>Radar/Spider variant</summary>
+
+```html
+<svg v-scope="{ 
+  points: Array.from({ length: 66 }, ()=>Array.from({ length: 2 }, Math.random)),
+  x: d3.scaleLinear().range([0, 2*Math.PI]),
+  y: d3.scaleLinear(),
+  bins: (points, axis) => d3.bin().value(p=>p[axis])(points).map(bin => {
+    bin.v = d3.mean([bin.x0, bin.x1]);
+    bin.vs = bin.map(p=>p[(axis+1)%2]);
+    bin.extent = d3.extent(bin.vs);
+    bin.q1 = d3.quantile(bin.vs, .25);
+    bin.q2 = d3.quantile(bin.vs, .50);
+    bin.q3 = d3.quantile(bin.vs, .75);
+    bin.iqr = bin.q3 - bin.q1;
+    bin.r0 = Math.max(bin.extent[0], bin.q1 - bin.iqr * 1.5);
+    bin.r1 = Math.min(bin.extent[1], bin.q3 + bin.iqr * 1.5);
+    bin.outliers = bin.vs.filter(v => v < bin.r0 || v > bin.r1);
+    return bin; }),
+  px: (a, r) => r*Math.cos(a-Math.PI/2),
+  py: (a, r) => r*Math.sin(a-Math.PI/2),
+  radius: Math.min($el.clientWidth, $el.clientHeight)/2 }"
+  :viewBox="[-radius, -radius, 2*radius, 2*radius].join(' ')"><g v-scope="{
+  xy: (x, y) => ({ x: px(x, y), y: py(x, y) }),
+  xyc: (x, y) => ({ cx: px(x, y), cy: py(x, y) }),
+  xyy: (x, y1, y2) => ({ x1: px(x, y1), y1: py(x, y1), x2: px(x, y2), y2: py(x, y2) }) }">
+  <g v-effect="x=x.domain(d3.extent(points, p=>p[0])).nice();x.bandwidth??=()=>8"></g>
+  <g v-effect="d3.select($el).call(d3.axisLeft(y=y.domain(d3.extent(points, p=>p[1])).range([10, radius-30]).nice()))"></g>
+
+  <!-- d3.axisRadial -->
+  <g font-size="10" font-family="sans-serif" text-anchor="middle" dominant-baseline ="middle">
+    <circle :r="y(x.domain?.()[1])" stroke="black" fill="none"></circle>
+    <circle :r="y(x.domain?.()[0])" stroke="black" fill="none"></circle>
+    <g v-for="tick in x.ticks?.()">
+      <line v-bind="xyy(x(tick), y(x.domain?.()[1]), y(x.domain?.()[1])+6)" stroke="black"></line>
+      <text v-bind="xy(x(tick), y(x.domain?.()[1])+15)">{{tick}}</text>
+    </g>
+  </g>
+
+  <!-- Scatter plot -->
+  <g :fill="d3.schemeSet2[0]"><circle v-for="[cx, cy] in points"
+    v-bind="xyc(x(cx), y(cy))"  r="2"></circle></g>
+
+  <!-- Line plot -->
+  <path :stroke="d3.schemeSet2[1]" fill="none"
+    :d="d3.lineRadial().curve(d3.curveCatmullRomClosed).angle(d=>x(d.v)).radius(d=>y(d.q1))(bins(points, 0))"></path>
+
+  <!-- Area plot -->
+  <path :fill="d3.schemeSet2[2]"
+    :d="d3.areaRadial().curve(d3.curveCatmullRomClosed).angle(d=>x(d.v)).innerRadius(d=>y(d.q1)).outerRadius(d=>y(d.q3))(bins(points, 0))"></path>
+
+  <!-- Bar plot -->
+  <g :fill="d3.schemeSet2[3]"><path v-for="d in bins(points, 0)"
+    :d="d3.arc().startAngle(d=>x(d.x0)).endAngle(d=>x(d.x1)).innerRadius(d=>y(0)).outerRadius(d=>y(d.q1))(d)"></path></g>
+
+  <!-- Boxplot -->
+  <g stroke="black" :stroke-width="x.bandwidth?.()"><g v-for="bin in bins(points, 0)">
+    <line v-bind="xyy(x(bin.v), y(bin.r0), y(bin.r1))" stroke-width="1"></line>
+    <line v-bind="xyy(x(bin.v), y(bin.q1), y(bin.q3))" stroke="gray"></line>
+    <line v-bind="xyy(x(bin.v), y(bin.q2)-1/2, y(bin.q2)+1/2)"></line>
+    <circle v-for="v in bin.outliers" v-bind="xyc(x(bin.v), y(v))" r="1" stroke="none"></circle>
+  </g></g>
+</g></svg>
+<script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
+```
+
+</details>
+
+## Hierarchies
 
 ```html
 <!-- Treemap -->
@@ -256,19 +351,18 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
 <script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
 
-## Analysis: Delaunay, Voronoi, Quadtree, Contours
+## Analysis
 
 ```html
+<!-- Delaunay & Voronoi -->
 <svg v-scope="{
   points: Array.from({ length: 66 }, ()=>Array.from({ length: 2 }, Math.random)),
   x: d3.scaleLinear().range([0, $el.clientWidth-60]),
-  y: d3.scaleLinear().range([0, -$el.clientHeight+40]),
-  geoPath: d3.geoPath(d3.geoIdentity().clipExtent([[0, 0], [$el.clientWidth-60, $el.clientHeight-40]])) }"
+  y: d3.scaleLinear().range([0, -$el.clientHeight+40]) }"
   :viewBox="[-40, 30-$el.clientHeight, $el.clientWidth, $el.clientHeight].join(' ')">
   <g v-effect="d3.select($el).call(d3.axisBottom(x=x.domain(d3.extent(points, p=>p[0])).nice()))"></g>
   <g v-effect="d3.select($el).call(d3.axisLeft(y=y.domain(d3.extent(points, p=>p[1])).nice()))"></g>
 
-  <!-- Delaunay & Voronoi -->
   <g v-for="delaunay in [d3.Delaunay.from(points)]" v-scope="{
     line: d3.line().x(p=>x(p[0])).y(p=>y(p[1])) }"
     fill="none" stroke="black">
@@ -279,7 +373,23 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
       :d="line(cell)"></path>
   </g>
 
-  <!-- Quadtree -->
+  <!-- Scatter plot -->
+  <circle v-for="[cx, cy] in points" :cx="x(cx)" :cy="y(cy)" r="2"></circle>
+</svg>
+<script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
+```
+
+```html
+<!-- Quadtree -->
+<svg v-scope="{
+  points: Array.from({ length: 66 }, ()=>Array.from({ length: 2 }, Math.random)),
+  x: d3.scaleLinear().range([0, $el.clientWidth-60]),
+  y: d3.scaleLinear().range([0, -$el.clientHeight+40]) }"
+  :viewBox="[-40, 30-$el.clientHeight, $el.clientWidth, $el.clientHeight].join(' ')">
+  <g v-effect="d3.select($el).call(d3.axisBottom(x=x.domain(d3.extent(points, p=>p[0])).nice()))"></g>
+  <g v-effect="d3.select($el).call(d3.axisLeft(y=y.domain(d3.extent(points, p=>p[1])).nice()))"></g>
+
   <g v-scope="{ rects: [] }" v-effect="rects = [];
     d3.quadtree(points).visit((node, x1, y1, x2, y2) => !rects.push({x1, y1, x2, y2}))">
     <rect v-for="rect in rects"
@@ -288,7 +398,24 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
       fill="none" stroke="black"></rect>
   </g>
 
-  <!-- Contours -->
+  <!-- Scatter plot -->
+  <circle v-for="[cx, cy] in points" :cx="x(cx)" :cy="y(cy)" r="2"></circle>
+</svg>
+<script src="https://cdn.jsdelivr.net/npm/d3"></script>
+<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
+```
+
+```html
+<!-- Contours -->
+<svg v-scope="{
+  points: Array.from({ length: 66 }, ()=>Array.from({ length: 2 }, Math.random)),
+  x: d3.scaleLinear().range([0, $el.clientWidth-60]),
+  y: d3.scaleLinear().range([0, -$el.clientHeight+40]),
+  geoPath: d3.geoPath(d3.geoIdentity().clipExtent([[0, 0], [$el.clientWidth-60, $el.clientHeight-40]])) }"
+  :viewBox="[-40, 30-$el.clientHeight, $el.clientWidth, $el.clientHeight].join(' ')">
+  <g v-effect="d3.select($el).call(d3.axisBottom(x=x.domain(d3.extent(points, p=>p[0])).nice()))"></g>
+  <g v-effect="d3.select($el).call(d3.axisLeft(y=y.domain(d3.extent(points, p=>p[1])).nice()))"></g>
+
   <g fill="none" stroke="black" transform="scale(1 -1)">
     <path v-for="contour in d3.contourDensity()(points.map(p=>[x(p[0]), -y(p[1])]))"
       :d="geoPath(contour)"></path>
@@ -372,109 +499,5 @@ GeoJSON types can be added to any data that isn't GeoJSON already. Try [azimutha
   </g>
 </svg>
 <script src="https://cdn.jsdelivr.net/npm/d3-cloud"></script>
-<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
-```
-
-## Horizontal plots
-
-```html
-<svg v-scope="{ 
-  points: Array.from({ length: 66 }, ()=>Array.from({ length: 2 }, Math.random)), x: i=>i, y: i=>i,
-  bins: (points, axis) => d3.bin().value(p=>p[axis])(points).map(bin => {
-    bin.v = d3.mean([bin.x0, bin.x1]);
-    bin.vs = bin.map(p=>p[(axis+1)%2]);
-    bin.extent = d3.extent(bin.vs);
-    bin.q1 = d3.quantile(bin.vs, .25);
-    bin.q2 = d3.quantile(bin.vs, .50);
-    bin.q3 = d3.quantile(bin.vs, .75);
-    bin.iqr = bin.q3 - bin.q1;
-    bin.r0 = Math.max(bin.extent[0], bin.q1 - bin.iqr * 1.5);
-    bin.r1 = Math.min(bin.extent[1], bin.q3 + bin.iqr * 1.5);
-    bin.outliers = bin.vs.filter(v => v < bin.r0 || v > bin.r1);
-    return bin; }) }"
-  :viewBox="[-40, 30-$el.clientHeight, $el.clientWidth, $el.clientHeight].join(' ')">
-  <g v-effect="d3.select($el).call(d3.axisBottom(x=d3.scalePow().domain(d3.extent(points, p=>p[0])).range([0, $el.parentElement.viewBox.baseVal.width-60]).nice()));x.bandwidth??=()=>8"></g>
-  <g v-effect="d3.select($el).call(d3.axisLeft(y=d3.scalePow().domain(d3.extent(points, p=>p[1])).range([0, -$el.parentElement.viewBox.baseVal.height+40]).nice()))"></g>
-
-  <!-- Scatter plot -->
-  <g :fill="d3.schemeSet2[0]"><circle v-for="[cx, cy] in points" :cx="x(cx)" :cy="y(cy)" r="2"></circle></g>
-
-  <!-- Line plot -->
-  <path :d="d3.line().curve(d3.curveCatmullRom).y(d=>y(d.v)).x(d=>x(d.q1))(bins(points, 1))" :stroke="d3.schemeSet2[1]" fill="none"></path>
-
-  <!-- Area plot -->
-  <path :d="d3.area().curve(d3.curveCatmullRom).y(d=>y(d.v)).x0(d=>x(d.q1)).x1(d=>x(d.q3))(bins(points, 1))" :fill="d3.schemeSet2[2]"></path>
-
-  <!-- Bar plot -->
-  <g :stroke="d3.schemeSet2[3]" :stroke-width="x.bandwidth?.()"><line v-for="d in bins(points, 1)" :x1="x(0)" :x2="x(d.q1)" :y1="y(d.v)" :y2="y(d.v)"></line></g>
-
-  <!-- Boxplot -->
-  <g stroke="black" :stroke-width="x.bandwidth?.()"><g v-for="bin in bins(points, 1)" :transform="`translate(0 ${y(bin.v)})`">
-    <line :x1="x(bin.r0)" :x2="x(bin.r1)" stroke-width="1"></line>
-    <line :x1="x(bin.q1)" :x2="x(bin.q3)" stroke="gray"></line>
-    <line :x1="x(bin.q2)-1/2" :x2="x(bin.q2)+1/2"></line>
-    <circle v-for="v in bin.outliers" :cx="x(v)" r="1" stroke-width="1"></circle>
-  </g></g>
-</svg>
-<script src="https://cdn.jsdelivr.net/npm/d3"></script>
-<script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
-```
-
-## Radar/Spider plot
-
-```html
-<svg v-scope="{ 
-  points: Array.from({ length: 66 }, ()=>Array.from({ length: 2 }, Math.random)),
-  radius: Math.min($el.clientWidth, $el.clientHeight)/2, x: i=>i, y: i=>i,
-  bins: (points, axis) => d3.bin().value(p=>p[axis])(points).map(bin => {
-    bin.v = d3.mean([bin.x0, bin.x1]);
-    bin.vs = bin.map(p=>p[(axis+1)%2]);
-    bin.extent = d3.extent(bin.vs);
-    bin.q1 = d3.quantile(bin.vs, .25);
-    bin.q2 = d3.quantile(bin.vs, .50);
-    bin.q3 = d3.quantile(bin.vs, .75);
-    bin.iqr = bin.q3 - bin.q1;
-    bin.r0 = Math.max(bin.extent[0], bin.q1 - bin.iqr * 1.5);
-    bin.r1 = Math.min(bin.extent[1], bin.q3 + bin.iqr * 1.5);
-    bin.outliers = bin.vs.filter(v => v < bin.r0 || v > bin.r1);
-    return bin; }),
-  px: (a, r) => r*Math.cos(a-Math.PI/2),
-  py: (a, r) => r*Math.sin(a-Math.PI/2) }"
-  :viewBox="[-radius, -radius, 2*radius, 2*radius].join(' ')"><g v-scope="{
-  xy: (x, y) => ({ x: px(x, y), y: py(x, y) }),
-  xyc: (x, y) => ({ cx: px(x, y), cy: py(x, y) }),
-  xyy: (x, y1, y2) => ({ x1: px(x, y1), y1: py(x, y1), x2: px(x, y2), y2: py(x, y2) }) }">
-  <g v-effect="x=d3.scaleLinear().domain(d3.extent(points, p=>p[0])).range([0, 2*Math.PI]).nice();x.bandwidth??=()=>8"></g>
-  <g v-effect="d3.select($el).call(d3.axisLeft(y=d3.scaleLinear().domain(d3.extent(points, p=>p[1])).range([10, radius-30]).nice()))"></g>
-  <g font-size="10" font-family="sans-serif" text-anchor="middle" dominant-baseline ="middle">
-    <circle :r="y(x.domain?.()[1])" stroke="black" fill="none"></circle>
-    <circle :r="y(x.domain?.()[0])" stroke="black" fill="none"></circle>
-    <g v-for="tick in x.ticks?.()">
-      <line v-bind="xyy(x(tick), y(x.domain?.()[1]), y(x.domain?.()[1])+6)" stroke="black"></line>
-      <text v-bind="xy(x(tick), y(x.domain?.()[1])+15)">{{tick}}</text>
-    </g>
-  </g>
-
-  <!-- Scatter plot -->
-  <g :fill="d3.schemeSet2[0]"><circle v-for="[cx, cy] in points" v-bind="xyc(x(cx), y(cy))"  r="2"></circle></g>
-
-  <!-- Line plot -->
-  <path :d="d3.lineRadial().curve(d3.curveCatmullRomClosed).angle(d=>x(d.v)).radius(d=>y(d.q1))(bins(points, 0))" :stroke="d3.schemeSet2[1]" fill="none"></path>
-
-  <!-- Area plot -->
-  <path :d="d3.areaRadial().curve(d3.curveCatmullRomClosed).angle(d=>x(d.v)).innerRadius(d=>y(d.q1)).outerRadius(d=>y(d.q3))(bins(points, 0))" :fill="d3.schemeSet2[2]"></path>
-
-  <!-- Bar plot -->
-  <g :fill="d3.schemeSet2[3]"><path v-for="d in bins(points, 0)" :d="d3.arc().startAngle(d=>x(d.x0)).endAngle(d=>x(d.x1)).innerRadius(d=>y(0)).outerRadius(d=>y(d.q1))(d)" :fill="d3.schemeSet2[3]"></path></g>
-
-  <!-- Boxplot -->
-  <g stroke="black" :stroke-width="x.bandwidth?.()"><g v-for="bin in bins(points, 0)">
-    <line v-bind="xyy(x(bin.v), y(bin.r0), y(bin.r1))" stroke-width="1"></line>
-    <line v-bind="xyy(x(bin.v), y(bin.q1), y(bin.q3))" stroke="gray"></line>
-    <line v-bind="xyy(x(bin.v), y(bin.q2)-1/2, y(bin.q2)+1/2)"></line>
-    <circle v-for="v in bin.outliers" v-bind="xyc(x(bin.v), y(v))" r="1" stroke="none"></circle>
-  </g></g>
-</g></svg>
-<script src="https://cdn.jsdelivr.net/npm/d3"></script>
 <script src="https://cdn.jsdelivr.net/npm/@jogemu/petite-vue" defer init></script>
 ```
